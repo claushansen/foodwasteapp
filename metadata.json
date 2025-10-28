@@ -1,0 +1,7 @@
+{
+  "name": "Køleskabs Kokken",
+  "description": "Upload et billede af indholdet i dit køleskab, og få lækre opskriftsforslag baseret på de ingredienser, du har. Reducer madspild og opdag nye måltider!",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
