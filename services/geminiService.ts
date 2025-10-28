@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Recipe } from '../types';
 
@@ -54,7 +53,7 @@ export const identifyIngredients = async (imageBase64: string, mimeType: string)
 export const generateRecipes = async (ingredients: string[]): Promise<Recipe[]> => {
   const ingredientsString = ingredients.join(', ');
   const textPart = {
-    text: `Du er en hjælpsom kok. Givet følgende liste af ingredienser: ${ingredientsString}. Generer 3 forskellige og kreative opskrifter, der primært bruger disse ingredienser. Du kan antage, at basale spisekammer-ingredienser som salt, peber, olie og vand er tilgængelige. Returner resultatet som et JSON-array, hvor hvert objekt har 'title' (string), 'description' (string, en kort, fængende beskrivelse), 'ingredients' (array af strenge) og 'instructions' (array af strenge). Sørg for at alt output er på dansk.`
+    text: `Du er en hjælpsom og yderst kreativ kok. Givet følgende liste af ingredienser: ${ingredientsString}. Generer 3 nye, forskellige og spændende opskrifter, der primært bruger disse ingredienser. Du kan antage, at basale spisekammer-ingredienser som salt, peber, olie og vand er tilgængelige. Returner resultatet som et JSON-array, hvor hvert objekt har 'title' (string), 'description' (string, en kort, fængende beskrivelse), 'ingredients' (array af strenge) og 'instructions' (array af strenge). Sørg for at alt output er på dansk.`
   }
 
   try {
@@ -84,8 +83,12 @@ export const generateRecipes = async (ingredients: string[]): Promise<Recipe[]> 
         }
     });
 
-    const recipes = JSON.parse(response.text);
-    return recipes as Recipe[];
+    const parsedJson = JSON.parse(response.text);
+    if (Array.isArray(parsedJson)) {
+        return parsedJson as Recipe[];
+    }
+    console.warn("API'en returnerede ikke et array for opskrifter. Returnerer et tomt array.", parsedJson);
+    return [];
   } catch (error) {
     console.error("Fejl ved generering af opskrifter:", error);
     throw new Error("Kunne ikke generere opskrifter.");

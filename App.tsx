@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [progressMessage, setProgressMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState<boolean>(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -116,6 +117,22 @@ const App: React.FC = () => {
       setProgressMessage('');
     }
   }, [image, imageMimeType]);
+
+  const handleRegenerateRecipes = async () => {
+    if (ingredients.length === 0) return;
+
+    setIsRegenerating(true);
+    setError(null);
+
+    try {
+      const generated = await generateRecipes(ingredients);
+      setRecipes(generated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Kunne ikke generere nye opskrifter.');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
   
   const triggerFileSelect = () => fileInputRef.current?.click();
 
@@ -253,6 +270,31 @@ const App: React.FC = () => {
                   ))}
                 </div>
               </div>
+            )}
+
+            {ingredients.length > 0 && (
+                <div className="text-center mt-12">
+                    <button
+                        onClick={handleRegenerateRecipes}
+                        disabled={isRegenerating}
+                        className="bg-white border-2 border-emerald-600 text-emerald-600 font-bold py-3 px-8 rounded-full hover:bg-emerald-50 transition-colors duration-300 text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mx-auto"
+                    >
+                        {isRegenerating ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Genererer...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fa-solid fa-wand-magic-sparkles mr-3"></i>
+                                Ikke helt det? Generer nye forslag
+                            </>
+                        )}
+                    </button>
+                </div>
             )}
           </>
         );
